@@ -1,0 +1,19 @@
+body {
+    background: black;
+    color: rgb(202, 202, 202);
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica';
+
+}
+
+.container {
+    display: grid;
+    place-items: center;
+    font-size: 2em;
+}
+
+.temp {
+    font-size: 3em;
+    font-family: monospace;
+}

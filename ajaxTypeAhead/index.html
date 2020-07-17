@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+<script>
+
+
+const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+const cities = [];
+
+// fetches the shit from that endpoint url
+// first the response needs to be clarified as being json
+// then it's spread into an array and pushed to the cities array
+fetch(endpoint)
+    .then(blob => blob.json())
+    .then(data => cities.push(...data))
+
+
+// function takes as input a word to match and an array
+// returns the array filtered by a regex match either on the city or state entry
+function findMatches(wordToMatch, cities) {
+
+    return cities.filter(place => {
+
+        const regex = new RegExp(wordToMatch, 'gi')
+        
+        return place.city.match(regex) || place.state.match(regex)
+
+    })
+}
+
+// adding commas to numbers like 1,000,000 instead of 1000000
+// grabbed from stackoverflow
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+
+// variable searchInput has been pointed at the class of search which is on the input tag in the html
+// two event listeners have been placed on that variable: change and keyup. when those fire, it runs displayMatches function
+// as it's an input, the value of the prompted input is in memory and is going to the function as this.value.
+
+// 
+function displayMatches() {
+
+  // first this function calls the findMatches function with this.value as input and cities as the other input. 
+  // the match is stored in variable matchArray
+  const matchArray = findMatches(this.value, cities)
+  //console.log(matchArray)
+  
+  // mapping over the matched array now. essentially turning the values of the inputted array into spans that at the end are pushed to the innerHTML of suggestions.
+  const html = matchArray.map(place => {
+
+    const regex = new RegExp(this.value, 'gi');
+    const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`)
+    const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`)
+      return `
+          <li>
+              <span class="name">${cityName}, ${stateName}</span>
+              <span class="population">${numberWithCommas(place.population)}</span>
+          </li>
+      `;
+  }).join('');
+
+  suggestions.innerHTML = html;
+  
+}
+
+const searchInput = document.querySelector('.search');
+const suggestions = document.querySelector('.suggestions');
+
+searchInput.addEventListener('change', displayMatches);
+searchInput.addEventListener('keyup', displayMatches);
+
+</script>
+</body>
+</html>
